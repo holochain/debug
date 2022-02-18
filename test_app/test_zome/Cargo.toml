@@ -1,0 +1,12 @@
+[package]
+name = "test_zome"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "test_zome"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+hdk = { path = "../../../holochain/crates/hdk" }

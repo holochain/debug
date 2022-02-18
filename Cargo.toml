@@ -1,0 +1,3 @@
+[workspace]
+members = ["mock_network", "sessions"]
+exclude = ["test_app/test_zome"]

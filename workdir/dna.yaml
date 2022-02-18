@@ -1,0 +1,8 @@
+---
+manifest_version: "1"
+name: test_app
+uid: 00000000-0000-0000-0000-000000000000
+properties: ~
+zomes:
+  - name: test_zome
+    bundled: ../test_app/test_zome/target/wasm32-unknown-unknown/release/test_zome.wasm

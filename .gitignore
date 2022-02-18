@@ -1,0 +1,6 @@
+/target
+Cargo.lock
+.my-shell.nix
+target
+dnas
+.vscode
