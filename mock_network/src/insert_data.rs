@@ -34,10 +34,7 @@ pub fn insert_element_as_authority(txn: &mut Transaction, element: &Element) {
     insert_header(txn, element.signed_header()).unwrap();
     let mut stmt = txn
         .prepare_cached(
-            "INSERT INTO DhtOp (hash, type, basis_hash, header_hash,
-                    storage_center_loc, authored_timestamp, op_order,
-                    validation_status, when_integrated, require_receipt,
-                    num_validation_attempts, last_validation_attempt, dependency) 
+            "INSERT INTO DhtOp (hash, type, basis_hash, header_hash, storage_center_loc, authored_timestamp, op_order, validation_status, when_integrated, require_receipt, num_validation_attempts, last_validation_attempt, dependency) 
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .unwrap();

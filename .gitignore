@@ -4,3 +4,4 @@ Cargo.lock
 target
 dnas
 .vscode
+*.code-workspace
