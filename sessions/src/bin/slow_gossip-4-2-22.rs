@@ -16,9 +16,10 @@ pub struct Props {
 async fn main() {
     let _ = observability::test_run();
     // let dna_path = PathBuf::from("/home/freesig/holochain/debug/dnas/elemental-chat.dna");
-    let dna_path = sessions::build::build_dna(&Path::new(
-        "/home/freesig/holochain/debug/test_app/test_zome/Cargo.toml",
-    ))
+    let dna_path = sessions::build::build_dna(
+        &Path::new("/home/freesig/holochain/debug/test_app/test_zome/Cargo.toml"),
+        "test_app",
+    )
     .await;
 
     let dna_file = SweetDnaFile::from_bundle_with_overrides(
@@ -46,7 +47,7 @@ async fn main() {
 
     let dna_hash = dna_file.dna_hash().clone();
     let agent_data = Generate {
-        keystore: &keystore,
+        keystore: keystore.clone(),
         data,
         dna_hash: dna_hash.clone(),
         genesis_settings: GenesisBuilder::default(),

@@ -11,6 +11,7 @@ path = "src/lib.rs"
 [dependencies]
 arbitrary = "1.0.3"
 mock_network = { path = "../mock_network" }
+controller = { path = "../controller" }
 holochain = { path = "../../holochain/crates/holochain", features = [
     "test_utils",
 ] }
@@ -18,14 +19,23 @@ holochain_zome_types = { path = "../../holochain/crates/holochain_zome_types" }
 holochain_types = { path = "../../holochain/crates/holochain_types" }
 holochain_state = { path = "../../holochain/crates/holochain_state" }
 holochain_cascade = { path = "../../holochain/crates/holochain_cascade" }
+holochain_websocket = { path = "../../holochain/crates/holochain_websocket" }
 kitsune_p2p = { path = "../../holochain/crates/kitsune_p2p/kitsune_p2p" }
 kitsune_p2p_types = { path = "../../holochain/crates/kitsune_p2p/types" }
+kitsune_p2p_bootstrap = { path = "../../holochain/crates/kitsune_p2p/bootstrap" }
 holochain_keystore = { path = "../../holochain/crates/holochain_keystore" }
 holo_hash = { path = "../../holochain/crates/holo_hash" }
 holochain_cli = { path = "../../holochain/crates/hc" }
 observability = { path = "../../observability" }
 # tokio = { version = "1.16.1", features = ["full"] }
-tokio = { version = "1.12", features = [ "full", "tracing"] }
+tokio = { version = "1.12", features = ["full", "tracing"] }
 rusqlite = "0.26.3"
 serde = { version = "1.0.123", features = ["derive"] }
 systemstat = "0.1.10"
+hdrhistogram = "7.5.0"
+futures = "0.3.21"
+clap = "3.1"
+async-compression = { version = "0.3.12", features = ["tokio", "zstd"] }
+rayon = "1.5.1"
+elemental-chat = { path = "../../elemental-chat/zomes/chat" }
+uuid = "0.8.2"

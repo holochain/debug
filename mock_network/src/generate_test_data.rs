@@ -1,5 +1,7 @@
 use std::{
     collections::HashMap,
+    path::PathBuf,
+    sync::Arc,
     time::{Duration, SystemTime},
 };
 
@@ -10,20 +12,24 @@ use holochain_types::prelude::*;
 
 use crate::types::ChainData;
 
-pub mod agent_info;
+pub use generated::*;
 
-pub struct GenerateBatch<'a, I>
+pub mod agent_info;
+pub mod hdk;
+mod generated;
+
+pub struct GenerateBatch<I>
 where
     I: IntoIterator<Item = ChainData>,
 {
-    pub agent_data: Vec<Generate<'a, I>>,
+    pub agent_data: Vec<Generate<I>>,
 }
 
-pub struct Generate<'a, I>
+pub struct Generate<I>
 where
     I: IntoIterator<Item = ChainData>,
 {
-    pub keystore: &'a MetaLairClient,
+    pub keystore: MetaLairClient,
     pub data: I,
     pub dna_hash: DnaHash,
     pub genesis_settings: GenesisBuilder,
@@ -38,11 +44,11 @@ pub struct Genesis {
     pub start_time: Option<SystemTime>,
 }
 
-impl<'a, I> GenerateBatch<'a, I>
+impl<I> GenerateBatch<I>
 where
     I: IntoIterator<Item = ChainData>,
 {
-    pub async fn make(self) -> HashMap<AgentPubKey, Vec<Element>> {
+    pub async fn make(self) -> HashMap<Arc<AgentPubKey>, Vec<Arc<Element>>> {
         let stream = self.agent_data.into_iter().map(|generate| async move {
             let Generate {
                 keystore,
@@ -56,7 +62,7 @@ where
             }
             let genesis_data = genesis_settings.build().unwrap();
             let author = genesis_data.author.clone();
-            let genesis_items = genesis(dna_hash.clone(), keystore, genesis_data).await;
+            let genesis_items = genesis(dna_hash.clone(), &keystore, genesis_data).await;
 
             let data = data.into_iter();
 
@@ -75,15 +81,16 @@ where
                 let header = header.build(common.clone());
                 let header = HeaderHashed::from_content_sync(header);
                 common.prev_header = header.to_hash();
+                let ks = keystore.clone();
                 async move {
-                    Element::new(
-                        SignedHeaderHashed::new(keystore, header).await.unwrap(),
+                    Arc::new(Element::new(
+                        SignedHeaderHashed::sign(&ks, header).await.unwrap(),
                         entry,
-                    )
+                    ))
                 }
             });
             (
-                author,
+                Arc::new(author),
                 futures::stream::iter(data_stream)
                     .buffer_unordered(10)
                     .collect()
@@ -122,7 +129,9 @@ async fn genesis(dna_hash: DnaHash, keystore: &MetaLairClient, genesis: Genesis)
         hash: dna_hash,
     });
     let dna_header = HeaderHashed::from_content_sync(dna_header);
-    let dna_header = SignedHeaderHashed::new(keystore, dna_header).await.unwrap();
+    let dna_header = SignedHeaderHashed::sign(keystore, dna_header)
+        .await
+        .unwrap();
     let dna_header_address = dna_header.as_hash().clone();
     let dna_element = Element::new(dna_header, None);
 
@@ -137,7 +146,7 @@ async fn genesis(dna_hash: DnaHash, keystore: &MetaLairClient, genesis: Genesis)
         membrane_proof,
     });
     let agent_validation_header = HeaderHashed::from_content_sync(agent_validation_header);
-    let agent_validation_header = SignedHeaderHashed::new(keystore, agent_validation_header)
+    let agent_validation_header = SignedHeaderHashed::sign(keystore, agent_validation_header)
         .await
         .unwrap();
     let avh_addr = agent_validation_header.as_hash().clone();
@@ -155,11 +164,25 @@ async fn genesis(dna_hash: DnaHash, keystore: &MetaLairClient, genesis: Genesis)
         entry_hash: author.clone().into(),
     });
     let agent_header = HeaderHashed::from_content_sync(agent_header);
-    let agent_header = SignedHeaderHashed::new(&keystore, agent_header)
+    let agent_header = SignedHeaderHashed::sign(&keystore, agent_header)
         .await
         .unwrap();
     let agent_element = Element::new(agent_header, Some(Entry::Agent(author)));
     [dna_element, avh_element, agent_element]
+}
+
+pub fn dump_database<Kind: DbKindT>(env: &DbWrite<Kind>, name: &str) -> PathBuf {
+    let mut tmp = std::env::temp_dir();
+    tmp.push("test_dbs");
+    std::fs::create_dir(&tmp).ok();
+    tmp.push(format!("test-{}.sqlite3", name));
+    println!("dumping db to {}", tmp.display());
+    std::fs::write(&tmp, b"").unwrap();
+    env.conn()
+        .unwrap()
+        .execute("VACUUM main into ?", [tmp.to_string_lossy()])
+        .unwrap();
+    tmp
 }
 
 // pub async fn generate<S>(num: usize, mut f: S, cell: &SweetCell, keystore: MetaLairClient)
