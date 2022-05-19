@@ -11,13 +11,20 @@ holochain = { path = "../../holochain/crates/holochain", features = [
 ] }
 kitsune_p2p = { path = "../../holochain/crates/kitsune_p2p/kitsune_p2p" }
 kitsune_p2p_types = { path = "../../holochain/crates/kitsune_p2p/types" }
+kitsune_p2p_proxy = { path = "../../holochain/crates/kitsune_p2p/proxy" }
+kitsune_p2p_transport_quic = { path = "../../holochain/crates/kitsune_p2p/transport_quic" }
 holochain_p2p = { path = "../../holochain/crates/holochain_p2p" }
 holochain_types = { path = "../../holochain/crates/holochain_types" }
 holochain_state = { path = "../../holochain/crates/holochain_state" }
 holochain_keystore = { path = "../../holochain/crates/holochain_keystore" }
+hdk = { path = "../../holochain/crates/hdk" }
+observability = { path = "../../observability" }
 derive_builder = "0.10.2"
 arbitrary = "1.0.3"
 serde = { version = "1.0.123", features = ["derive"] }
 fastrand = "1.7.0"
 futures = "0.3.21"
 rusqlite = "0.26.3"
+tokio = { version = "1.12", features = ["full", "tracing"] }
+controller = { path = "../controller" }
+rayon = "1.5.1"

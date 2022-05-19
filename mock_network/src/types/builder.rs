@@ -1,3 +1,4 @@
+use hdk::prelude::LinkType;
 use holochain_types::prelude::{DnaHash, EntryType, HeaderHash};
 
 use super::*;
@@ -8,6 +9,7 @@ pub struct CreateLinkBuilder {
     pub target_address: Option<EntryHash>,
     pub zome_id: Option<ZomeId>,
     pub tag: Option<LinkTag>,
+    pub link_type: Option<LinkType>,
 }
 
 #[derive(Default)]
@@ -69,7 +71,8 @@ make_from!(
     base_address,
     target_address,
     zome_id,
-    tag
+    tag,
+    link_type
 );
 
 make_from!(
